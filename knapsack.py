@@ -45,11 +45,26 @@ def tournament_selection(population, tournament_size):
         selected.append(winner)
     return selected
 
-# Perform one-point crossover
-def one_point_crossover(parent1, parent2):
+# Perform one-point crossover with backcross breeding
+def one_point_crossover_with_backcross(parent1, parent2):
     crossover_point = random.randint(1, len(parent1) - 1)
     child1 = parent1[:crossover_point] + parent2[crossover_point:]
     child2 = parent2[:crossover_point] + parent1[crossover_point:]
+
+    # Calculate fitness for children and parents
+    parent1_fitness = fitness(parent1)
+    parent2_fitness = fitness(parent2)
+    child1_fitness = fitness(child1)
+    child2_fitness = fitness(child2)
+
+    # Check if children have lower fitness than parents
+    if child1_fitness < parent1_fitness:
+        crossover_point = random.randint(1, len(parent1) - 1)
+        child1 = parent1[:crossover_point] + parent2[crossover_point:]
+    if child2_fitness < parent2_fitness:
+        crossover_point = random.randint(1, len(parent1) - 1)
+        child2 = parent2[:crossover_point] + parent1[crossover_point:]
+
     return child1, child2
 
 # Perform mutation
@@ -70,7 +85,7 @@ for generation in range(generations):
     
     while len(next_generation) < population_size:
         parent1, parent2 = random.sample(selected, 2)
-        child1, child2 = one_point_crossover(parent1, parent2)
+        child1, child2 = one_point_crossover_with_backcross(parent1, parent2)
         child1 = mutate(child1)
         child2 = mutate(child2)
         next_generation.extend([child1, child2])
